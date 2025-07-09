@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Digital Bank">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9IiMwMDc2Q0UiLz4KPHR4dCB4PSI5MCIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjNlbSI+QjwvdHh0Pgo8L3N2Zz4K">
+    <title>Digital Bank - Mobile Banking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0076CE, #004B87);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #0076CE;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 20px 15px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .action-btn:hover, .action-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 24px;
+        }
+
+        .action-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .balance-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .account-number {
+            font-size: 12px;
+            opacity: 0.7;
+            font-family: monospace;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-link {
+            color: white;
+            text-decoration: none;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-link:hover, .menu-link:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            width: 25px;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .install-prompt {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .install-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* iOS Safe Area */
+        @supports (padding: env(safe-area-inset-top)) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="connectionStatus">🟢 Connected</div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">W</div>
+            <h1>Digital Bank</h1>
+            <p class="subtitle">Mobile Banking for iPhone</p>
+        </div>
+
+        <div class="install-prompt" id="installPrompt" style="display: none;">
+            <p>📱 Install this app on your iPhone for a better experience!</p>
+            <p style="font-size: 12px; margin-top: 5px;">Tap the Share button ⬆️ and select "Add to Home Screen"</p>
+        </div>
+
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">₹45,000</div>
+            <div class="account-number">Account: ****7890123</div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="action-btn" onclick="showSection('transfer')">
+                <div class="action-icon">💸</div>
+                <div class="action-text">Transfer</div>
+            </button>
+            <button class="action-btn" onclick="showSection('history')">
+                <div class="action-icon">📊</div>
+                <div class="action-text">History</div>
+            </button>
+            <button class="action-btn" onclick="showSection('customers')">
+                <div class="action-icon">👥</div>
+                <div class="action-text">Customers</div>
+            </button>
+            <button class="action-btn" onclick="showSection('reports')">
+                <div class="action-icon">📈</div>
+                <div class="action-text">Reports</div>
+            </button>
+        </div>
+
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('profile')">
+                    <span class="menu-icon">👤</span>
+                    <span>My Profile</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('accounts')">
+                    <span class="menu-icon">💳</span>
+                    <span>My Accounts</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('transactions')">
+                    <span class="menu-icon">🔄</span>
+                    <span>Recent Transactions</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" onclick="showSection('settings')">
+                    <span class="menu-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Hidden sections that will be shown when menu items are clicked -->
+    <div id="sections" style="display: none;">
+        <div id="transfer-section">
+            <h2>💸 Fund Transfer</h2>
+            <p>Transfer funds between accounts securely.</p>
+            <p><strong>Demo:</strong> Transfer simulation completed successfully!</p>
+        </div>
+        <div id="history-section">
+            <h2>📊 Transaction History</h2>
+            <p>View your recent transactions and account activity.</p>
+        </div>
+        <div id="customers-section">
+            <h2>👥 Customer Management</h2>
+            <p>Manage customer accounts and information.</p>
+        </div>
+        <div id="reports-section">
+            <h2>📈 Reports & Analytics</h2>
+            <p>Generate detailed financial reports and analytics.</p>
+        </div>
+    </div>
+
+    <script>
+        // Check if running as PWA
+        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('installPrompt').style.display = 'none';
+        } else {
+            document.getElementById('installPrompt').style.display = 'block';
+        }
+
+        // Simple navigation
+        function showSection(sectionName) {
+            // Create a simple alert for demo purposes
+            const messages = {
+                'transfer': '💸 Fund Transfer\n\nDemo: Successfully transferred ₹5,000\nFrom: Account ***7890123\nTo: Account ***7890124\nStatus: Completed ✅',
+                'history': '📊 Transaction History\n\n1. ₹5,000 - Fund Transfer (Today)\n2. ₹15,000 - Credit (Yesterday)\n3. ₹2,500 - Debit (2 days ago)',
+                'customers': '👥 Customer Management\n\n• John Doe (ID: 1001)\n• Jane Smith (ID: 1002)\n• Bob Johnson (ID: 1003)\n\nAll customers active ✅',
+                'reports': '📈 Reports & Analytics\n\nAccount Summary:\n• Total Balance: ₹1,55,000\n• Active Accounts: 3\n• Transactions Today: 5\n• Monthly Growth: +12%',
+                'profile': '👤 My Profile\n\nJohn Doe\nCustomer ID: 1001\nEmail: john.doe@email.com\nPhone: +91-9876543210\nAccount Status: Active ✅',
+                'accounts': '💳 My Accounts\n\n1. Savings Account\n   Balance: ₹45,000\n   Account: ***7890123\n\n2. Current Account\n   Balance: ₹80,000\n   Account: ***7890124',
+                'transactions': '🔄 Recent Transactions\n\n• ₹5,000 - Transfer Out (Now)\n• ₹15,000 - Salary Credit (Today)\n• ₹500 - ATM Withdrawal (Yesterday)\n• ₹1,200 - Online Purchase (2 days ago)',
+                'settings': '⚙️ Settings\n\n• Notifications: ON\n• Biometric Login: Enabled\n• Language: English\n• Currency: INR (₹)\n• Dark Mode: Auto\n\nApp Version: 1.0.0'
+            };
+
+            alert(messages[sectionName] || 'Feature coming soon!');
+        }
+
+        // Simulate connection status
+        const statusEl = document.getElementById('connectionStatus');
+        let connected = true;
+        
+        setInterval(() => {
+            if (Math.random() > 0.95) { // Occasionally show disconnected
+                connected = !connected;
+                statusEl.textContent = connected ? '🟢 Connected' : '🔴 Offline';
+                statusEl.style.background = connected ? '#4CAF50' : '#f44336';
+            }
+        }, 3000);
+
+        // Add some iOS-specific touches
+        document.addEventListener('touchstart', function(e) {
+            // Prevent zoom on double tap
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+
+        // Haptic feedback simulation (for demonstration)
+        function hapticFeedback() {
+            if (navigator.vibrate) {
+                navigator.vibrate(10); // Very short vibration
+            }
+        }
+
+        // Add haptic feedback to buttons
+        document.querySelectorAll('.action-btn, .menu-link').forEach(button => {
+            button.addEventListener('click', hapticFeedback);
+        });
+
+        // Show install prompt after 3 seconds if not already installed
+        setTimeout(() => {
+            if (!window.navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
+                const prompt = document.getElementById('installPrompt');
+                if (prompt) {
+                    prompt.style.animation = 'pulse 2s infinite';
+                }
+            }
+        }, 3000);
+
+        // Service worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4gewogIGNvbnNvbGUubG9nKCdTZXJ2aWNlIFdvcmtlciBpbnN0YWxsZWQnKTsKfSk7CgpzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2ZldGNoJywgZXZlbnQgPT4gewogIC8vIFNpbXBsZSBjYWNoZSBzdHJhdGVneSBmb3IgZGVtbwogIGV2ZW50LnJlc3BvbmRXaXRoKGZldGNoKGV2ZW50LnJlcXVlc3QpKTsKfSk7')
+              .then(() => console.log('Service Worker registered'))
+              .catch(() => console.log('Service Worker registration failed'));
+        }
+    </script>
+</body>
+</html>

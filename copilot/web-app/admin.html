@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Bank - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0066cc;
+            --dark-blue: #004499;
+            --light-blue: #e6f3ff;
+            --admin-red: #dc3545;
+            --admin-orange: #fd7e14;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--light-blue) 0%, #ffffff 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(90deg, var(--admin-red) 0%, var(--admin-orange) 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .admin-sidebar {
+            background: #343a40;
+            min-height: calc(100vh - 76px);
+            padding: 20px 0;
+        }
+        
+        .admin-content {
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card {
+            background: linear-gradient(45deg, var(--primary-blue), var(--dark-blue));
+            color: white;
+        }
+        
+        .stat-card.danger {
+            background: linear-gradient(45deg, var(--admin-red), #c82333);
+        }
+        
+        .stat-card.warning {
+            background: linear-gradient(45deg, var(--admin-orange), #e0a800);
+        }
+        
+        .stat-card.success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        
+        .sidebar-link {
+            color: #adb5bd;
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-left-color: var(--admin-red);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(45deg, var(--admin-red), var(--admin-orange));
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .table-responsive {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .badge-status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-shield-alt me-2"></i>
+                Digital Bank Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-2"></i>
+                        <span id="adminUsername">Admin</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 admin-sidebar">
+                <div class="sidebar-menu">
+                    <a href="#" class="sidebar-link active" onclick="event.preventDefault(); showSection('dashboard'); return false;">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('customers'); return false;">
+                        <i class="fas fa-users me-2"></i>Customers
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('accounts'); return false;">
+                        <i class="fas fa-credit-card me-2"></i>Accounts
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('transactions'); return false;">
+                        <i class="fas fa-exchange-alt me-2"></i>Transactions
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('reports'); return false;">
+                        <i class="fas fa-chart-bar me-2"></i>Reports
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('settings'); return false;">
+                        <i class="fas fa-cogs me-2"></i>System Settings
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('users'); return false;">
+                        <i class="fas fa-user-shield me-2"></i>User Management
+                    </a>
+                    <a href="#" class="sidebar-link" onclick="event.preventDefault(); showSection('audit'); return false;">
+                        <i class="fas fa-clipboard-list me-2"></i>Audit Logs
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10 admin-content">
+                <!-- Dashboard Section -->
+                <div id="dashboard-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+                        <div>
+                            <button class="btn btn-admin me-2" onclick="testAllSections()">
+                                <i class="fas fa-flask me-2"></i>Test Navigation
+                            </button>
+                            <button class="btn btn-admin">
+                                <i class="fas fa-download me-2"></i>Export Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="card stat-card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users fa-2x mb-3"></i>
+                                    <h3>1,245</h3>
+                                    <p class="mb-0">Total Customers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card stat-card success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-credit-card fa-2x mb-3"></i>
+                                    <h3>3,821</h3>
+                                    <p class="mb-0">Active Accounts</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card stat-card warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exchange-alt fa-2x mb-3"></i>
+                                    <h3>156</h3>
+                                    <p class="mb-0">Today's Transactions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card stat-card danger">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                    <h3>12</h3>
+                                    <p class="mb-0">Pending Approvals</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-clock me-2"></i>Recent Activities</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Time</th>
+                                                    <th>Activity</th>
+                                                    <th>User</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>10:30 AM</td>
+                                                    <td>New customer registration</td>
+                                                    <td>John Doe</td>
+                                                    <td><span class="badge badge-status bg-success">Completed</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>10:15 AM</td>
+                                                    <td>Fund transfer ₹50,000</td>
+                                                    <td>Jane Smith</td>
+                                                    <td><span class="badge badge-status bg-warning">Pending</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>09:45 AM</td>
+                                                    <td>Account status update</td>
+                                                    <td>Admin User</td>
+                                                    <td><span class="badge badge-status bg-success">Completed</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>09:30 AM</td>
+                                                    <td>Password reset request</td>
+                                                    <td>Bob Johnson</td>
+                                                    <td><span class="badge badge-status bg-danger">Failed</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-pie me-2"></i>Quick Stats</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Active Sessions</span>
+                                            <strong>234</strong>
+                                        </div>
+                                        <div class="progress mt-1">
+                                            <div class="progress-bar bg-success" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Server Load</span>
+                                            <strong>45%</strong>
+                                        </div>
+                                        <div class="progress mt-1">
+                                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Database Usage</span>
+                                            <strong>62%</strong>
+                                        </div>
+                                        <div class="progress mt-1">
+                                            <div class="progress-bar bg-info" style="width: 62%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Security Score</span>
+                                            <strong>95%</strong>
+                                        </div>
+                                        <div class="progress mt-1">
+                                            <div class="progress-bar bg-success" style="width: 95%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other sections (hidden by default) -->
+                <div id="customers-section" style="display: none;">
+                    <h2><i class="fas fa-users me-2"></i>Customer Management</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-users me-2"></i>All Customers</h5>
+                                    <button class="btn btn-primary btn-sm" onclick="refreshCustomerData()">
+                                        <i class="fas fa-refresh me-2"></i>Refresh
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Account Number</th>
+                                                    <th>Email</th>
+                                                    <th>Phone</th>
+                                                    <th>Balance</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="customersTable">
+                                                <!-- Dynamic content -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="accounts-section" style="display: none;">
+                    <h2><i class="fas fa-credit-card me-2"></i>Account Management</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-credit-card fa-3x text-primary mb-3"></i>
+                                    <h4 id="totalAccounts">0</h4>
+                                    <p class="text-muted">Total Accounts</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+                                    <h4 id="totalBalance">$0</h4>
+                                    <p class="text-muted">Total Balance</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <i class="fas fa-chart-line fa-3x text-info mb-3"></i>
+                                    <h4 id="avgBalance">$0</h4>
+                                    <p class="text-muted">Average Balance</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-list me-2"></i>Account Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="accountsList">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="transactions-section" style="display: none;">
+                    <h2><i class="fas fa-exchange-alt me-2"></i>Transaction Monitoring</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-clock me-2"></i>Recent Transactions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="recentTransactions">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-chart-pie me-2"></i>Transaction Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="transactionSummary">
+                                        <!-- Dynamic content -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reports-section" style="display: none;">
+                    <h2><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-download me-2"></i>Generate Reports</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <button class="btn btn-outline-primary w-100 mb-2" onclick="generateCustomerReport()">
+                                                <i class="fas fa-users me-2"></i>Customer Report
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-outline-success w-100 mb-2" onclick="generateTransactionReport()">
+                                                <i class="fas fa-exchange-alt me-2"></i>Transaction Report
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-outline-info w-100 mb-2" onclick="generateBalanceReport()">
+                                                <i class="fas fa-chart-line me-2"></i>Balance Report
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button class="btn btn-outline-warning w-100 mb-2" onclick="generateFullReport()">
+                                                <i class="fas fa-file-alt me-2"></i>Full Report
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-table me-2"></i>Generated Report</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="reportOutput">
+                                <p class="text-muted text-center">Select a report type above to generate data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="settings-section" style="display: none;">
+                    <h2><i class="fas fa-cogs me-2"></i>System Settings</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-database me-2"></i>Demo Data Management</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <button class="btn btn-warning w-100 mb-2" onclick="resetDemoData()">
+                                            <i class="fas fa-undo me-2"></i>Reset Demo Data
+                                        </button>
+                                        <small class="text-muted">Restore original demo customers and transactions</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <button class="btn btn-danger w-100 mb-2" onclick="clearAllData()">
+                                            <i class="fas fa-trash me-2"></i>Clear All Data
+                                        </button>
+                                        <small class="text-muted">Remove all customers and transactions</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-info-circle me-2"></i>System Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="systemInfo">
+                                        <p><strong>Application:</strong> Digital Bank Web App</p>
+                                        <p><strong>Version:</strong> 1.0.0</p>
+                                        <p><strong>Mode:</strong> Demo Mode</p>
+                                        <p><strong>Last Updated:</strong> <span id="lastUpdated"></span></p>
+                                        <p><strong>Total Users:</strong> <span id="totalUsers">0</span></p>
+                                        <p><strong>Total Transactions:</strong> <span id="totalTransactions">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        System configuration and maintenance tools.
+                    </div>
+                </div>
+
+                <div id="users-section" style="display: none;">
+                    <h2><i class="fas fa-user-shield me-2"></i>User Management</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-users me-2"></i>System Users</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Role</th>
+                                                    <th>Last Login</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>admin@digitalbank.com</td>
+                                                    <td><span class="badge bg-danger">Admin</span></td>
+                                                    <td>2025-01-08 10:30 AM</td>
+                                                    <td><span class="badge bg-success">Active</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>user@digitalbank.com</td>
+                                                    <td><span class="badge bg-primary">Customer</span></td>
+                                                    <td>2025-01-08 09:45 AM</td>
+                                                    <td><span class="badge bg-success">Active</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>manager@digitalbank.com</td>
+                                                    <td><span class="badge bg-warning">Manager</span></td>
+                                                    <td>2025-01-07 16:20 PM</td>
+                                                    <td><span class="badge bg-warning">Inactive</span></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-plus me-2"></i>Add New User</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3">
+                                            <label class="form-label">Username</label>
+                                            <input type="email" class="form-control" placeholder="user@email.com">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Role</label>
+                                            <select class="form-control">
+                                                <option>Customer</option>
+                                                <option>Manager</option>
+                                                <option>Admin</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-control">
+                                                <option>Active</option>
+                                                <option>Inactive</option>
+                                            </select>
+                                        </div>
+                                        <button type="button" class="btn btn-primary w-100" onclick="alert('Demo: User would be created')">Create User</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="audit-section" style="display: none;">
+                    <h2><i class="fas fa-clipboard-list me-2"></i>Audit Logs</h2>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-history me-2"></i>System Activity Log</h5>
+                                    <div>
+                                        <select class="form-select form-select-sm d-inline-block w-auto me-2">
+                                            <option>All Activities</option>
+                                            <option>Login Events</option>
+                                            <option>Data Changes</option>
+                                            <option>Admin Actions</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-download me-1"></i>Export
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Timestamp</th>
+                                                    <th>User</th>
+                                                    <th>Action</th>
+                                                    <th>Details</th>
+                                                    <th>IP Address</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>2025-01-08 10:30:15</td>
+                                                    <td>admin@digitalbank.com</td>
+                                                    <td><span class="badge bg-info">Login</span></td>
+                                                    <td>Admin dashboard access</td>
+                                                    <td>192.168.1.100</td>
+                                                    <td><span class="badge bg-success">Success</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2025-01-08 10:25:42</td>
+                                                    <td>user@digitalbank.com</td>
+                                                    <td><span class="badge bg-warning">Transfer</span></td>
+                                                    <td>Fund transfer: $500 ACC001→ACC002</td>
+                                                    <td>192.168.1.101</td>
+                                                    <td><span class="badge bg-success">Success</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2025-01-08 09:45:20</td>
+                                                    <td>user@digitalbank.com</td>
+                                                    <td><span class="badge bg-primary">Create</span></td>
+                                                    <td>New customer created: ACC004</td>
+                                                    <td>192.168.1.101</td>
+                                                    <td><span class="badge bg-success">Success</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2025-01-08 09:30:05</td>
+                                                    <td>admin@digitalbank.com</td>
+                                                    <td><span class="badge bg-danger">Delete</span></td>
+                                                    <td>Customer deleted: ACC005</td>
+                                                    <td>192.168.1.100</td>
+                                                    <td><span class="badge bg-success">Success</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2025-01-08 09:15:33</td>
+                                                    <td>unknown</td>
+                                                    <td><span class="badge bg-danger">Failed Login</span></td>
+                                                    <td>Invalid credentials attempt</td>
+                                                    <td>192.168.1.200</td>
+                                                    <td><span class="badge bg-danger">Failed</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm justify-content-center">
+                                            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Authentication check - Must be at the top
+        window.addEventListener('DOMContentLoaded', function() {
+            const userSession = localStorage.getItem('bankUserSession');
+            if (!userSession) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const session = JSON.parse(userSession);
+            if (!session.isAuthenticated || session.role !== 'admin') {
+                // If not admin, redirect to appropriate page
+                if (session.role === 'user') {
+                    window.location.href = 'index.html';
+                } else {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+            
+            // Display admin info
+            displayAdminInfo(session);
+        });
+        
+        function displayAdminInfo(session) {
+            // Update any admin-specific UI elements
+            const adminWelcome = document.querySelector('.stat-card h3');
+            if (adminWelcome) {
+                // Could update with admin name, but keeping current functionality
+            }
+        }
+        
+        // Admin session validation
+        function validateAdminSession() {
+            const userSession = localStorage.getItem('bankUserSession');
+            const userRole = localStorage.getItem('userRole');
+            
+            console.log('Admin session validation:', { userSession, userRole });
+            
+            // If no session data at all, redirect to login
+            if (!userSession && !userRole) {
+                console.log('No session data found, redirecting to login');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            // If userRole is not admin, redirect to login
+            if (userRole !== 'admin') {
+                console.log('User role is not admin:', userRole);
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            // If bankUserSession exists, validate it
+            if (userSession) {
+                try {
+                    const session = JSON.parse(userSession);
+                    if (!session.isAuthenticated || session.role !== 'admin') {
+                        console.log('Invalid admin session data:', session);
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                } catch (e) {
+                    console.log('Error parsing session data:', e);
+                    window.location.href = 'login.html';
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+        
+        // Initialize admin dashboard on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin page DOM loaded');
+            
+            try {
+                // Validate admin session first
+                if (!validateAdminSession()) {
+                    return;
+                }
+                
+                // Set admin username
+                const username = localStorage.getItem('username') || 'Admin';
+                const adminUsernameElement = document.getElementById('adminUsername');
+                if (adminUsernameElement) {
+                    adminUsernameElement.textContent = username;
+                }
+                
+                // Initialize dashboard
+                initializeAdminDashboard();
+                
+                console.log('Admin dashboard initialized successfully');
+            } catch (error) {
+                console.error('Error initializing admin dashboard:', error);
+                // Show error message to user
+                const mainContent = document.querySelector('.admin-content');
+                if (mainContent) {
+                    mainContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h4>Error Loading Admin Dashboard</h4>
+                            <p>There was an error loading the admin dashboard. Please try refreshing the page.</p>
+                            <p><strong>Error:</strong> ${error.message}</p>
+                            <button class="btn btn-primary" onclick="window.location.reload()">Refresh Page</button>
+                            <button class="btn btn-secondary" onclick="window.location.href='login.html'">Back to Login</button>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        // Load mock data from localStorage (shared with main app)
+        function loadSharedData() {
+            const savedCustomers = localStorage.getItem('digitalBankCustomers');
+            const savedTransactions = localStorage.getItem('digitalBankTransactions');
+            
+            if (savedCustomers) {
+                return {
+                    customers: JSON.parse(savedCustomers),
+                    transactions: JSON.parse(savedTransactions) || []
+                };
+            }
+            
+            // Default data if nothing saved
+            return {
+                customers: [
+                    { id: 1, name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', accountNumber: 'ACC001', balance: 5000 },
+                    { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '987-654-3210', accountNumber: 'ACC002', balance: 7500 },
+                    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '555-123-4567', accountNumber: 'ACC003', balance: 3200 }
+                ],
+                transactions: [
+                    { id: 1, fromAccount: 'ACC001', toAccount: 'ACC002', amount: 500, description: 'Transfer to Jane', date: '2025-01-08', time: '10:30 AM' },
+                    { id: 2, fromAccount: 'ACC002', toAccount: 'ACC003', amount: 300, description: 'Payment to Mike', date: '2025-01-07', time: '09:45 AM' }
+                ]
+            };
+        }
+
+        function saveSharedData(customers, transactions) {
+            localStorage.setItem('digitalBankCustomers', JSON.stringify(customers));
+            localStorage.setItem('digitalBankTransactions', JSON.stringify(transactions));
+        }
+
+        // Load shared data
+        let sharedData = loadSharedData();
+        let adminMockCustomers = sharedData.customers;
+        let adminMockTransactions = sharedData.transactions;
+
+        // Function to refresh data from localStorage
+        function refreshSharedData() {
+            sharedData = loadSharedData();
+            adminMockCustomers = sharedData.customers;
+            adminMockTransactions = sharedData.transactions;
+        }
+
+        // Initialize admin dashboard
+        function initializeAdminDashboard() {
+            console.log('Initializing admin dashboard...');
+            
+            try {
+                updateDashboardStats();
+                console.log('Dashboard stats updated');
+                
+                updateSystemInfo();
+                console.log('System info updated');
+                
+                console.log('Admin dashboard initialization complete');
+            } catch (error) {
+                console.error('Error in initializeAdminDashboard:', error);
+                throw error;
+            }
+        }
+
+        function updateDashboardStats() {
+            // Update the main dashboard statistics
+            const totalCustomers = adminMockCustomers.length;
+            const totalBalance = adminMockCustomers.reduce((sum, customer) => sum + customer.balance, 0);
+            const totalTransactions = adminMockTransactions.length;
+            
+            // Update dashboard stat cards
+            const statCards = document.querySelectorAll('.stat-card h3');
+            if (statCards.length >= 4) {
+                statCards[0].textContent = totalCustomers.toLocaleString();
+                statCards[1].textContent = (totalCustomers * 1.2).toFixed(0); // Mock active accounts
+                statCards[2].textContent = totalTransactions;
+                statCards[3].textContent = Math.floor(Math.random() * 20); // Mock pending approvals
+            }
+        }
+
+        function updateSystemInfo() {
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            document.getElementById('totalUsers').textContent = adminMockCustomers.length;
+            document.getElementById('totalTransactions').textContent = adminMockTransactions.length;
+        }
+
+        // Customer Management Functions
+        function refreshCustomerData() {
+            refreshSharedData();
+            displayCustomers();
+        }
+
+        function displayCustomers() {
+            refreshSharedData(); // Always get latest data
+            const tbody = document.getElementById('customersTable');
+            tbody.innerHTML = '';
+            
+            adminMockCustomers.forEach(customer => {
+                const row = `
+                    <tr>
+                        <td>${customer.id}</td>
+                        <td>${customer.name}</td>
+                        <td>${customer.accountNumber}</td>
+                        <td>${customer.email}</td>
+                        <td>${customer.phone}</td>
+                        <td>$${customer.balance.toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="editCustomer(${customer.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCustomer(${customer.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function editCustomer(customerId) {
+            const customer = adminMockCustomers.find(c => c.id === customerId);
+            if (customer) {
+                const newBalance = prompt(`Edit balance for ${customer.name} (Current: $${customer.balance}):`, customer.balance);
+                if (newBalance && !isNaN(newBalance)) {
+                    customer.balance = parseInt(newBalance);
+                    saveSharedData(adminMockCustomers, adminMockTransactions); // Save changes
+                    displayCustomers();
+                    updateDashboardStats();
+                    alert(`Balance updated successfully for ${customer.name}!`);
+                }
+            }
+        }
+
+        function deleteCustomer(customerId) {
+            const customer = adminMockCustomers.find(c => c.id === customerId);
+            if (customer && confirm(`Are you sure you want to delete customer ${customer.name}?`)) {
+                adminMockCustomers = adminMockCustomers.filter(c => c.id !== customerId);
+                saveSharedData(adminMockCustomers, adminMockTransactions); // Save changes
+                displayCustomers();
+                updateDashboardStats();
+                alert(`Customer ${customer.name} deleted successfully!`);
+            }
+        }
+
+        // Account Management Functions
+        function displayAccountManagement() {
+            refreshSharedData(); // Always get latest data
+            const totalAccounts = adminMockCustomers.length;
+            const totalBalance = adminMockCustomers.reduce((sum, customer) => sum + customer.balance, 0);
+            const avgBalance = totalBalance / totalAccounts;
+
+            document.getElementById('totalAccounts').textContent = totalAccounts;
+            document.getElementById('totalBalance').textContent = `$${totalBalance.toLocaleString()}`;
+            document.getElementById('avgBalance').textContent = `$${avgBalance.toFixed(0)}`;
+
+            const accountsList = document.getElementById('accountsList');
+            accountsList.innerHTML = '';
+            
+            adminMockCustomers.forEach(customer => {
+                const accountCard = `
+                    <div class="mb-3 p-3 border rounded">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>${customer.accountNumber}</strong><br>
+                                <small class="text-muted">${customer.name}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>$${customer.balance.toLocaleString()}</strong><br>
+                                <small class="text-muted">Current Balance</small>
+                            </div>
+                            <div class="col-md-3">
+                                <span class="badge bg-success">Active</span><br>
+                                <small class="text-muted">Account Status</small>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewAccountHistory('${customer.accountNumber}')">
+                                    View History
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                accountsList.innerHTML += accountCard;
+            });
+        }
+
+        function viewAccountHistory(accountNumber) {
+            const transactions = adminMockTransactions.filter(t => 
+                t.fromAccount === accountNumber || t.toAccount === accountNumber
+            );
+            
+            let history = `Transaction History for ${accountNumber}:\n\n`;
+            transactions.forEach(transaction => {
+                const type = transaction.fromAccount === accountNumber ? 'Debit' : 'Credit';
+                history += `${transaction.date} ${transaction.time} - ${type}: $${transaction.amount} (${transaction.description})\n`;
+            });
+            
+            if (transactions.length === 0) {
+                history += 'No transactions found.';
+            }
+            
+            alert(history);
+        }
+
+        // Transaction Monitoring Functions
+        function displayTransactionMonitoring() {
+            refreshSharedData(); // Always get latest data
+            const recentTransactionsDiv = document.getElementById('recentTransactions');
+            recentTransactionsDiv.innerHTML = '';
+            
+            adminMockTransactions.slice(-5).reverse().forEach(transaction => {
+                const transactionCard = `
+                    <div class="mb-2 p-2 border-start border-primary border-3 bg-light">
+                        <div class="d-flex justify-content-between">
+                            <strong>$${transaction.amount.toLocaleString()}</strong>
+                            <small class="text-muted">${transaction.date} ${transaction.time}</small>
+                        </div>
+                        <div class="text-muted">
+                            ${transaction.fromAccount} → ${transaction.toAccount}
+                        </div>
+                        <div class="text-muted small">
+                            ${transaction.description}
+                        </div>
+                    </div>
+                `;
+                recentTransactionsDiv.innerHTML += transactionCard;
+            });
+
+            // Transaction Summary
+            const summaryDiv = document.getElementById('transactionSummary');
+            const totalAmount = adminMockTransactions.reduce((sum, t) => sum + t.amount, 0);
+            const todayTransactions = adminMockTransactions.filter(t => t.date === '2025-01-08').length;
+            
+            summaryDiv.innerHTML = `
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-primary">$${totalAmount.toLocaleString()}</h4>
+                        <small class="text-muted">Total Volume</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success">${todayTransactions}</h4>
+                        <small class="text-muted">Today's Count</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                </div>
+                <small class="text-muted">75% processed successfully</small>
+            `;
+        }
+
+        // Report Generation Functions
+        function generateCustomerReport() {
+            const reportDiv = document.getElementById('reportOutput');
+            let report = `
+                <h5>Customer Report</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Account Number</th>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            adminMockCustomers.forEach(customer => {
+                report += `
+                    <tr>
+                        <td>${customer.accountNumber}</td>
+                        <td>${customer.name}</td>
+                        <td>${customer.email}</td>
+                        <td>$${customer.balance.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            report += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success" onclick="downloadReport('customer')">
+                        <i class="fas fa-download me-2"></i>Download CSV
+                    </button>
+                </div>
+            `;
+            
+            reportDiv.innerHTML = report;
+        }
+
+        function generateTransactionReport() {
+            const reportDiv = document.getElementById('reportOutput');
+            let report = `
+                <h5>Transaction Report</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>From Account</th>
+                                <th>To Account</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            adminMockTransactions.forEach(transaction => {
+                report += `
+                    <tr>
+                        <td>${transaction.date}</td>
+                        <td>${transaction.time}</td>
+                        <td>${transaction.fromAccount}</td>
+                        <td>${transaction.toAccount}</td>
+                        <td>$${transaction.amount.toLocaleString()}</td>
+                        <td>${transaction.description}</td>
+                    </tr>
+                `;
+            });
+            
+            report += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success" onclick="downloadReport('transaction')">
+                        <i class="fas fa-download me-2"></i>Download CSV
+                    </button>
+                </div>
+            `;
+            
+            reportDiv.innerHTML = report;
+        }
+
+        function generateBalanceReport() {
+            const reportDiv = document.getElementById('reportOutput');
+            const totalBalance = adminMockCustomers.reduce((sum, customer) => sum + customer.balance, 0);
+            const avgBalance = totalBalance / adminMockCustomers.length;
+            const maxBalance = Math.max(...adminMockCustomers.map(c => c.balance));
+            const minBalance = Math.min(...adminMockCustomers.map(c => c.balance));
+            
+            const report = `
+                <h5>Balance Report</h5>
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-primary">$${totalBalance.toLocaleString()}</h4>
+                            <small class="text-muted">Total Balance</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-success">$${avgBalance.toFixed(0)}</h4>
+                            <small class="text-muted">Average Balance</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-warning">$${maxBalance.toLocaleString()}</h4>
+                            <small class="text-muted">Highest Balance</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h4 class="text-info">$${minBalance.toLocaleString()}</h4>
+                            <small class="text-muted">Lowest Balance</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success" onclick="downloadReport('balance')">
+                        <i class="fas fa-download me-2"></i>Download Report
+                    </button>
+                </div>
+            `;
+            
+            reportDiv.innerHTML = report;
+        }
+
+        function generateFullReport() {
+            const reportDiv = document.getElementById('reportOutput');
+            const totalBalance = adminMockCustomers.reduce((sum, customer) => sum + customer.balance, 0);
+            const totalTransactionAmount = adminMockTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            const report = `
+                <h5>Full System Report</h5>
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3>${adminMockCustomers.length}</h3>
+                                <p class="text-muted">Total Customers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3>$${totalBalance.toLocaleString()}</h3>
+                                <p class="text-muted">Total Deposits</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3>$${totalTransactionAmount.toLocaleString()}</h3>
+                                <p class="text-muted">Total Transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-success">
+                    <h6>System Health: Excellent</h6>
+                    <p class="mb-0">All systems operational. No critical issues detected.</p>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success" onclick="downloadReport('full')">
+                        <i class="fas fa-download me-2"></i>Download Full Report
+                    </button>
+                </div>
+            `;
+            
+            reportDiv.innerHTML = report;
+        }
+
+        function downloadReport(type) {
+            alert(`${type.charAt(0).toUpperCase() + type.slice(1)} report download started! (Demo: File would be saved as ${type}_report_${new Date().toISOString().split('T')[0]}.csv)`);
+        }
+
+        // System Settings Functions
+        function resetDemoData() {
+            if (confirm('Are you sure you want to reset all demo data? This will restore original customers and transactions.')) {
+                adminMockCustomers = [
+                    { id: 1, name: 'John Doe', email: 'john@example.com', phone: '123-456-7890', accountNumber: 'ACC001', balance: 5000 },
+                    { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '987-654-3210', accountNumber: 'ACC002', balance: 7500 },
+                    { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '555-123-4567', accountNumber: 'ACC003', balance: 3200 }
+                ];
+                
+                adminMockTransactions = [
+                    { id: 1, fromAccount: 'ACC001', toAccount: 'ACC002', amount: 500, description: 'Transfer to Jane', date: '2025-01-08', time: '10:30 AM' },
+                    { id: 2, fromAccount: 'ACC002', toAccount: 'ACC003', amount: 300, description: 'Payment to Mike', date: '2025-01-07', time: '09:45 AM' }
+                ];
+                
+                saveSharedData(adminMockCustomers, adminMockTransactions); // Save reset data
+                updateDashboardStats();
+                updateSystemInfo();
+                alert('Demo data has been reset successfully!');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL data? This cannot be undone!')) {
+                adminMockCustomers = [];
+                adminMockTransactions = [];
+                saveSharedData(adminMockCustomers, adminMockTransactions); // Save cleared data
+                updateDashboardStats();
+                updateSystemInfo();
+                alert('All data has been cleared successfully!');
+            }
+        }
+        
+        function showSection(sectionName) {
+            console.log('Switching to section:', sectionName);
+            
+            // Hide all sections
+            const sections = ['dashboard', 'customers', 'accounts', 'transactions', 'reports', 'settings', 'users', 'audit'];
+            sections.forEach(section => {
+                const sectionElement = document.getElementById(section + '-section');
+                if (sectionElement) {
+                    sectionElement.style.display = 'none';
+                }
+            });
+            
+            // Show selected section
+            const selectedSection = document.getElementById(sectionName + '-section');
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+                console.log('Section displayed:', sectionName);
+            } else {
+                console.error('Section not found:', sectionName + '-section');
+            }
+            
+            // Update sidebar active state
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find and activate the clicked link
+            const targetLink = document.querySelector(`[onclick*="showSection('${sectionName}')"]`);
+            if (targetLink) {
+                targetLink.classList.add('active');
+            }
+            
+            // Load section-specific data
+            switch(sectionName) {
+                case 'customers':
+                    refreshSharedData(); // Get latest data first
+                    displayCustomers();
+                    break;
+                case 'accounts':
+                    refreshSharedData(); // Get latest data first
+                    displayAccountManagement();
+                    break;
+                case 'transactions':
+                    refreshSharedData(); // Get latest data first
+                    displayTransactionMonitoring();
+                    break;
+                case 'reports':
+                    refreshSharedData();
+                    // Reports section is ready to use
+                    break;
+                case 'settings':
+                    refreshSharedData();
+                    // Settings section is ready to use
+                    break;
+                case 'users':
+                    // User management placeholder
+                    break;
+                case 'audit':
+                    // Audit logs placeholder
+                    break;
+            }
+        }
+        
+        // Test function to verify all sections work
+        function testAllSections() {
+            const sections = ['dashboard', 'customers', 'accounts', 'transactions', 'reports', 'settings', 'users', 'audit'];
+            let currentIndex = 0;
+            
+            const testInterval = setInterval(() => {
+                if (currentIndex < sections.length) {
+                    console.log(`Testing section: ${sections[currentIndex]}`);
+                    showSection(sections[currentIndex]);
+                    currentIndex++;
+                } else {
+                    clearInterval(testInterval);
+                    showSection('dashboard'); // Return to dashboard
+                    alert('Navigation test complete! All sections are working.');
+                }
+            }, 1000); // Switch every second
+        }
+        
+        function logout() {
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            localStorage.removeItem('bankUserSession');
+            window.location.href = 'login.html';
+        }
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            // Update random statistics only if we're on the dashboard
+            const dashboardSection = document.getElementById('dashboard-section');
+            if (dashboardSection && dashboardSection.style.display !== 'none') {
+                const statElements = document.querySelectorAll('.stat-card h3');
+                statElements.forEach(element => {
+                    const currentValue = parseInt(element.textContent.replace(',', ''));
+                    const change = Math.floor(Math.random() * 10) - 5; // Random change between -5 and +5
+                    const newValue = Math.max(0, currentValue + change);
+                    element.textContent = newValue.toLocaleString();
+                });
+            }
+            
+            // Auto-refresh data from localStorage every 10 seconds
+            refreshSharedData();
+            updateDashboardStats();
+            updateSystemInfo();
+        }, 10000); // Update every 10 seconds
+        
+        // Also refresh data every 5 seconds if we're viewing a data section
+        setInterval(() => {
+            const currentSection = document.querySelector('[id$="-section"]:not([style*="display: none"])');
+            if (currentSection) {
+                const sectionName = currentSection.id.replace('-section', '');
+                if (['customers', 'accounts', 'transactions', 'reports'].includes(sectionName)) {
+                    refreshSharedData();
+                    
+                    // Update the currently visible section
+                    switch(sectionName) {
+                        case 'customers':
+                            if (document.getElementById('customersTable')) {
+                                displayCustomers();
+                            }
+                            break;
+                        case 'accounts':
+                            if (document.getElementById('totalAccounts')) {
+                                displayAccountManagement();
+                            }
+                            break;
+                        case 'transactions':
+                            if (document.getElementById('recentTransactions')) {
+                                displayTransactionMonitoring();
+                            }
+                            break;
+                    }
+                }
+            }
+        }, 5000); // Auto-refresh every 5 seconds
+    </script>
+</body>
+</html>

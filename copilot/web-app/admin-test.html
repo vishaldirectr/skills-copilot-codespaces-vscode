@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Test</title>
+</head>
+<body>
+    <h1>Admin Test Page</h1>
+    <p>Setting admin session...</p>
+    
+    <script>
+        // Set admin session data
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', 'admin@digitalbank.com');
+        
+        const adminSession = {
+            isAuthenticated: true,
+            role: 'admin',
+            username: 'admin@digitalbank.com',
+            loginTime: new Date().toISOString()
+        };
+        localStorage.setItem('bankUserSession', JSON.stringify(adminSession));
+        
+        console.log('Admin session set:', {
+            userRole: localStorage.getItem('userRole'),
+            bankUserSession: localStorage.getItem('bankUserSession')
+        });
+        
+        // Redirect to admin page after 1 second
+        setTimeout(() => {
+            window.location.href = 'admin.html';
+        }, 1000);
+    </script>
+</body>
+</html>

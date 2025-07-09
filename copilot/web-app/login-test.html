@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Login Test</h1>
+    
+    <h3>Current LocalStorage:</h3>
+    <div id="storage-info"></div>
+    
+    <button class="button" onclick="setAdminSession()">Set Admin Session</button>
+    <button class="button" onclick="goToAdmin()">Go to Admin Page</button>
+    <button class="button" onclick="clearSession()">Clear Session</button>
+    <button class="button" onclick="testLogin()">Test Login Flow</button>
+    
+    <script>
+        function displayStorageInfo() {
+            const info = document.getElementById('storage-info');
+            info.innerHTML = `
+                <p><strong>userRole:</strong> ${localStorage.getItem('userRole') || 'Not set'}</p>
+                <p><strong>isLoggedIn:</strong> ${localStorage.getItem('isLoggedIn') || 'Not set'}</p>
+                <p><strong>username:</strong> ${localStorage.getItem('username') || 'Not set'}</p>
+                <p><strong>bankUserSession:</strong> ${localStorage.getItem('bankUserSession') || 'Not set'}</p>
+            `;
+        }
+        
+        function setAdminSession() {
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('username', 'admin@digitalbank.com');
+            
+            const adminSession = {
+                isAuthenticated: true,
+                role: 'admin',
+                username: 'admin@digitalbank.com',
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('bankUserSession', JSON.stringify(adminSession));
+            
+            displayStorageInfo();
+            alert('Admin session set successfully!');
+        }
+        
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+        
+        function clearSession() {
+            localStorage.clear();
+            displayStorageInfo();
+            alert('Session cleared!');
+        }
+        
+        function testLogin() {
+            // Simulate the login process
+            const username = 'admin@digitalbank.com';
+            const password = 'admin123';
+            
+            // Simulate login validation
+            if (username === 'admin@digitalbank.com' && password === 'admin123') {
+                // Set admin session exactly like login.html does
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                
+                const adminSession = {
+                    isAuthenticated: true,
+                    role: 'admin',
+                    username: username,
+                    loginTime: new Date().toISOString()
+                };
+                localStorage.setItem('bankUserSession', JSON.stringify(adminSession));
+                
+                displayStorageInfo();
+                alert('Login successful! Click "Go to Admin Page" to test.');
+            }
+        }
+        
+        // Display initial storage info
+        displayStorageInfo();
+    </script>
+</body>
+</html>
