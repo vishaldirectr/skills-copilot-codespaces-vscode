@@ -5,7 +5,7 @@ A modern banking application with both console-based Java backend and web interf
 ## 🚀 Quick Start - Web Application
     
 ### Demo Mode (No Setup Required)
-The web application runs in demo mode with mock data - no database or backend setup needed!
+The web application runs in demo mode with mock data - no database or backend setup needed !!!!!!!!!!
 
 1. **Run the Web App:**
    ```bash
